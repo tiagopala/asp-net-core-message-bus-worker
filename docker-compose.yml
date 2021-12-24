@@ -1,0 +1,13 @@
+version: '3.7'
+
+services:
+  localstack:
+    container_name: localstack-messagebusworker
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES:sqs
+    ports:
+      - 4566:4566
+      - 4571:4571
+    volumes:
+      - ./ci/localstack-setup:/docker-entrypoint-initaws.d
