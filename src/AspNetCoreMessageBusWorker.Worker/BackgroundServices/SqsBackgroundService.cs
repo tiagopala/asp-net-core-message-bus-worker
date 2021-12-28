@@ -3,24 +3,20 @@ using AspNetCoreMessageBusWorker.Domain.Commands;
 using AspNetCoreMessageBusWorker.Domain.Events;
 using AspNetCoreMessageBusWorker.Domain.Extensions;
 
-namespace AspNetCoreMessageBusWorker.Worker.Workers;
+namespace AspNetCoreMessageBusWorker.Worker.BackgroundServices;
 
-public class BaseWorker : BackgroundService
+public class SqsBackgroundService : BaseBackgroundService
 {
-    private readonly ILogger<BaseWorker> _logger;
-    private readonly IAmazonSQS _sqsClient;
-    private readonly IConfiguration _configuration;
+    private readonly ILogger<SqsBackgroundService> _logger;
     private readonly IMediator _mediatR;
 
-    public BaseWorker(
-        ILogger<BaseWorker> logger,
+    public SqsBackgroundService(
+        ILogger<SqsBackgroundService> logger,
         IAmazonSQS sqsClient,
         IConfiguration configuration,
-        IMediator mediatR)
+        IMediator mediatR) : base(logger, sqsClient, configuration)
     {
         _logger = logger;
-        _sqsClient = sqsClient;
-        _configuration = configuration;
         _mediatR = mediatR;
     }
 
@@ -40,17 +36,6 @@ public class BaseWorker : BackgroundService
         }
     }
 
-    private async Task<IEnumerable<Message>> PullForMessages()
-    {
-        var pullingResponse = await _sqsClient.ReceiveMessageAsync(new ReceiveMessageRequest
-        {
-            QueueUrl = _configuration["AWS:SQS:QueueUrl"],
-            MaxNumberOfMessages = int.TryParse(_configuration["AWS:SQS:MaxNumberOfMessages"], out int result) ? result : 1
-        });
-
-        return pullingResponse.Messages;
-    }
-
     private async Task Process(Message message)
     {
         try
@@ -60,6 +45,8 @@ public class BaseWorker : BackgroundService
             var command = GetCommandFromMessageType(type, @event);
 
             await _mediatR.Send(command);
+
+            await RemoveProcessedMessage(message);
         }
         catch (Exception e)
         {
