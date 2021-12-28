@@ -1,4 +1,4 @@
-using AspNetCoreMessageBusWorker.Worker.Workers;
+using AspNetCoreMessageBusWorker.Worker;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
@@ -11,9 +11,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json", true)
             .AddEnvironmentVariables();
 
-        var options = configuration.GetAWSOptions();
-        services.AddAWSService<IAmazonSQS>(options);
-        services.AddHostedService<Worker>();
+        services.AddServices(configuration);
     })
     .Build();
 

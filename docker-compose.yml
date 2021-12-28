@@ -10,4 +10,5 @@ services:
       - 4566:4566
       - 4571:4571
     volumes:
+      - ./ci/payloads:/tmp/localstack/data
       - ./ci/localstack-setup:/docker-entrypoint-initaws.d

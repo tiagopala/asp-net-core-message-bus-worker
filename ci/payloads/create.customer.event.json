@@ -1,0 +1,12 @@
+{
+    "Type": "CreateCustomer",
+    "Message": {
+        "CustomerData": {
+            "Id": "988FAF58-AC86-4123-8919-86D57AD4A6FA",
+            "Name": "Tiago",
+            "LastName": "Pala",
+            "Email": "tiago.pala@gmail.com",
+            "Cpf": "629.871.755-23"
+        }
+    }
+}
